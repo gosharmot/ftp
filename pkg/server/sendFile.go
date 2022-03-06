@@ -17,6 +17,9 @@ func sendFile(conn net.Conn, name string) {
 	}
 	defer file.Close()
 
+	stat, _ := file.Stat()
+	fmt.Fprintln(conn, stat.Size())
+
 	io.Copy(conn, file)
 
 	fmt.Fprintf(conn, "Загрузка файла '%s' завершена успешно", name)

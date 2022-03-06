@@ -1,26 +1,25 @@
 package client
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
+	"os"
 	"strings"
 )
 
 func sendFile(conn net.Conn, fileName string) {
-
-	content, err := ioutil.ReadFile("store/client/" + fileName)
+	file, err := os.Open("store/client/" + fileName)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	stats, _ := file.Stat()
 
-	conn.Write([]byte(fmt.Sprintf("upload %s %d\n", fileName, len(content))))
+	conn.Write([]byte(fmt.Sprintf("upload %s %d\n", fileName, stats.Size())))
 
-	io.Copy(conn, bytes.NewReader(content))
+	io.Copy(conn, file)
 
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)

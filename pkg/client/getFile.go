@@ -1,12 +1,13 @@
 package client
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -18,8 +19,11 @@ func getFile(conn net.Conn, fileName string) {
 		log.Println(err)
 	}
 
-	buf := new(bytes.Buffer)
-	io.Copy(outputFile, bytes.NewReader(buf.Bytes()))
+	// получение размера файла
+	r := bufio.NewReader(conn)
+	s, _ := r.ReadString('\n')
+	fs, _ := strconv.Atoi(strings.ReplaceAll(s, "\n", ""))
+	_, err = io.Copy(outputFile, io.LimitReader(conn, int64(fs)))
 	outputFile.Close()
 
 	msg := make([]byte, 1024)
